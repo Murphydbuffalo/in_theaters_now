@@ -1,9 +1,23 @@
 require 'json'
+require 'net/http'
+require 'pry'
 
-movie_data = JSON.parse(File.read('in_theaters.json')) 
+if !ENV.has_key?("ROTTEN_TOMATOES_API_KEY")
+	puts "Please set the ROTTEN_TOMATOES_API_KEY in your terminal with:"
+	puts "export ROTTEN_TOMATOES_API_KEY='<your_key_here>' "
+	puts "Keys can be obtained at developer.rottentomatoes.com"
+	exit 
+end
+
+api_key = ENV["ROTTEN_TOMATOES_API_KEY"]
+
+uri = URI("http://api.rottentomatoes.com/api/public/v1.0/lists/movies/in_theaters.json?apikey=#{api_key}")
+
+response = Net::HTTP.get(uri)
+
+movie_data = JSON.parse(response) 
 
 pertinent_info = []
-
 movie_data["movies"].each do |movie| 
 	  while movie['abridged_cast'].count < 3
 	  	movie['abridged_cast'] << ""
